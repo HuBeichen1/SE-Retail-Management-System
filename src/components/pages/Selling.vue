@@ -62,7 +62,7 @@
           <el-tabs type="border-card">
             <el-tab-pane label="CURRENT ORDER">
               <!--Selected commodities list-->
-              <el-table v-bind:data="commodityList" border height="250" style="width: 100%;">
+              <el-table v-bind:data="commodityList" height="250" style="width: 100%;">
                 <el-table-column
                   prop="name"
                   label="Commodity">
@@ -108,7 +108,7 @@
               :before-close="handleClose">
               <!--Add order summary here-->
               <el-row>
-                <el-table v-bind:data="commodityList" border style="width: 100%;">
+                <el-table v-bind:data="commodityList" height="250" style="width: 100%;">
                   <el-table-column
                     prop="name"
                     label="Commodity">
@@ -165,8 +165,29 @@
         </el-row>
         <el-tabs type="border-card">
           <el-tab-pane label="Transaction Record">
-              <!--<el-table-column v-for="(column, index) in columns" :key="column.dataIndex" :label="column.text"></el-table-column>-->
-            <tree-grid :columns="columns" :tree-structure="true" :dataSource="orders"></tree-grid>
+            <!--Selected commodities list-->
+            <el-table v-bind:data="transactionList" height="250" style="width: 100%;">
+              <el-table-column
+                prop="name"
+                label="Transaction Goods">
+              </el-table-column>
+              <el-table-column
+                prop="discount"
+                label="Discount">
+              </el-table-column>
+              <el-table-column
+                prop="total"
+                label="Total">
+              </el-table-column>
+              <el-table-column
+                prop="receive"
+                label="Receive">
+              </el-table-column>
+              <el-table-column
+                prop="change"
+                label="Change">
+              </el-table-column>
+            </el-table>
           </el-tab-pane>
         </el-tabs>
       </el-col>
@@ -179,20 +200,19 @@
 <script>
   /* eslint-disable quotes,semi */
   import db from '../common/Firebase'
-//  import DataTransfer from '../common/dataTranslate.js'
-  import TreeGrid from "../common/TreeGrid.vue";
+  import ElCol from "element-ui/packages/col/src/col";
 
   let dbRef = {
     source: db.ref("categories")
     // asObject: true
   };
   let dbOrd = {
-    source: db.ref("orders")
-    // asObject: true
+    source: db.ref("orders"),
+    asObject: true
   };
 
   export default {
-    components: {TreeGrid},
+    components: {ElCol},
     firebase: {
       categories: dbRef,
       //      commodities: dbCom,
@@ -205,25 +225,7 @@
         commodityList: [],
         totalDiscount: 100,
         received: 0,
-        checkoutDialogVisible: false,
-        ordersTreeProps: {
-          children: 'commodities',
-          label: 'time'
-        },
-        columns: [
-          {
-            text: 'Time',
-            dataIndex: 'time'
-          },
-          {
-            text: 'Discount',
-            dataIndex: 'discount'
-          },
-          {
-            text: 'Total',
-            dataIndex: 'total'
-          }
-        ]
+        checkoutDialogVisible: false
       };
     },
     computed: {
@@ -383,7 +385,8 @@
               x += 1;
               break;
             } else {
-              flag = 1
+              flag = 1;
+              continue;
             }
           }
           if (flag === 1) {
@@ -408,12 +411,9 @@
       // 4. Close the window.
       handleConfirm: function () {
         // Give reminder.
-        if (this.totalPrice === 0) {
-          alert("You haven't select something to sell.")
-        } else if (this.received < this.totalPrice) {
+        if (this.received < this.totalPrice) {
           alert("You haven't received enough money.")
         } else {
-          // TODO: Update inventory.
           // Initialize the order object.
           let newOrder = this.$firebaseRefs.orders
           newOrder.push({
