@@ -196,22 +196,14 @@
 <script>
   /* eslint-disable quotes,semi */
   import db from '../common/Firebase'
-  import ElRow from "element-ui/packages/row/src/row";
 
   let dbRef = {
     source: db.ref("categories")
-  };
-  let dbOrd = {
-    source: db.ref("orders"),
-    asObject: true
-  };
+  }
 
   export default {
-    components: {ElRow},
     firebase: {
-      categories: dbRef,
-      //      commodities: dbCom,
-      orders: dbOrd
+      categories: dbRef
     },
     data () {
       return {
